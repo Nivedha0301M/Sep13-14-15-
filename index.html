@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Bank Exam Quiz</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f6f9;
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+}
+
+/* ========================= */
+/* TIMER AREA */
+/* ========================= */
+
+#timer-container{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:#f4f6f9;
+    padding-bottom:10px;
+}
+
+#timer{
+    background:#222;
+    color:white;
+    padding:15px;
+    text-align:center;
+    font-size:22px;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+.timer-buttons{
+    text-align:center;
+}
+
+#pauseBtn,
+#resumeBtn{
+    padding:10px 20px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+    margin:5px;
+}
+
+#pauseBtn{
+    background:#ff9800;
+    color:white;
+}
+
+#resumeBtn{
+    background:#28a745;
+    color:white;
+}
+
+.question{
+    background:white;
+    padding:20px;
+    margin-bottom:20px;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.question h3{
+    margin-bottom:15px;
+}
+
+.option{
+    display:block;
+    padding:12px;
+    margin:10px 0;
+    border:1px solid #ccc;
+    border-radius:8px;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.option:hover{
+    background:#f0f0f0;
+}
+
+.selected{
+    background:#cfe2ff;
+    border:2px solid #0d6efd;
+}
+
+.mark-btn{
+    margin-top:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#ff9800;
+    color:white;
+}
+
+.marked{
+    background:#ffcc80 !important;
+}
+
+.review-marked{
+    background:#e0e0e0 !important;
+    border:2px solid #9e9e9e;
+}
+
+.clear-btn{
+    margin-top:10px;
+    margin-left:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#dc3545;
+    color:white;
+}
+
+.submit-btn{
+    width:100%;
+    padding:15px;
+    font-size:20px;
+    border:none;
+    border-radius:10px;
+    background:#28a745;
+    color:white;
+    cursor:pointer;
+    margin-top:20px;
+}
+
+.result-box{
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    text-align:center;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+.review-btn{
+    padding:12px 20px;
+    margin-top:20px;
+    border:none;
+    border-radius:10px;
+    background:#007bff;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+}
+
+.review-question{
+    background:white;
+    padding:20px;
+    margin:20px 0;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.correct{
+    color:green;
+    font-weight:bold;
+}
+
+.wrong{
+    color:red;
+    font-weight:bold;
+}
+
+.unanswered{
+    color:orange;
+    font-weight:bold;
+}
+
+.correct-answer{
+    background:#d4edda;
+    padding:10px;
+    border-radius:8px;
+    margin-top:10px;
+}
+
+.disabled-option{
+    pointer-events:none;
+    opacity:0.6;
+}
+
+.disabled-btn{
+    opacity:0.6;
+    cursor:not-allowed;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Bank Exam MCQ Quiz</h1>
+
+<!-- ========================= -->
+<!-- TIMER -->
+<!-- ========================= -->
+
+<div id="timer-container">
+
+    <div id="timer">
+        Time Left: 20:00
+    </div>
+
+    <div class="timer-buttons">
+
+        <button id="pauseBtn" onclick="pauseTimer()">
+            Pause
+        </button>
+
+        <button id="resumeBtn" onclick="resumeTimer()" disabled>
+            Resume
+        </button>
+
+    </div>
+
+</div>
+
+<div id="quiz"></div>
+
+<button class="submit-btn" onclick="submitQuiz()">
+Submit Quiz
+</button>
+
+</div>
+
+<script>
+
+// ===============================
+// QUESTIONS AREA
+// ===============================
+
+const questions = [
+{q:"The Pradhan Mantri Matsya Sampada Yojana (PMMSY), an umbrella scheme aimed at sustainable and responsible development and modernisation of India’s fisheries sector, completed six years on 10 September 2026. Which of the following statements about PMMSY is correct?", options:["It was launched in 2019 with an outlay of ₹20,500 crore and is implemented exclusively as a Central Sector Scheme","It was launched in 2020 with an outlay of ₹25,000 crore and is implemented by the Ministry of Rural Development","It was launched in 2021 with an outlay of ₹15,000 crore and is implemented under the Department of Animal Husbandry, Ministry of Agriculture","It was launched in 2020 with an outlay of ₹20,050 crore and is implemented under the Department of Fisheries, Ministry of Fisheries, Animal Husbandry & Dairying"], answer:3},
+
+{q:"The Bankers’ Books Evidence Act, 2026 has been notified to provide a modern legal framework for using banking records as evidence. Which of the following correctly describes this legislation?", options:["It replaces the Bankers’ Books Evidence Act, 1891 and comes into effect from 1 October 2026","It replaces the Negotiable Instruments Act, 1881 and comes into effect from 1 January 2027","It replaces the Bankers’ Books Evidence Act, 1891 and came into effect immediately upon Presidential assent","It replaces the Banking Regulation Act, 1949 and comes into effect from 13 August 2026"], answer:0},
+
+{q:"Under the Bankers’ Books Evidence Act, 2026, banking records are given a technology-neutral legal framework. Which set of formats is specifically covered under the Act?", options:["Only digital and cloud-based records stored on servers located in India","Physical, electronic, digital, virtual and cloud-based records, including backup and disaster-recovery sites","Physical, electronic and digital records, but excluding virtual and disaster-recovery records","Only physical and electronic records maintained within a bank’s registered office"], answer:1},
+
+{q:"The Bankers’ Books Evidence Act, 2026 contains a provision concerning the summoning of bank officials to courts. In which circumstance must the court record a 'special cause' in writing?", options:["When electronic banking records are produced as evidence in any criminal proceeding","Only when the summoned bank official holds the position of Managing Director or Chief Executive Officer","Whenever any bank official is summoned, irrespective of whether the bank is a party","When a bank official is summoned in a proceeding in which the bank is not a party"], answer:3},
+
+{q:"Cochin Shipyard Limited (CSL) and Drydocks World (DDW), UAE, have entered into a 50:50 Joint Venture to operate and expand the International Ship Repair Facility (ISRF) at Kochi. Which investment structure is correct?", options:["CSL will invest ₹1,800 crore while DDW will contribute ₹900 crore","CSL and DDW will invest ₹450 crore each, resulting in a total investment of ₹900 crore","CSL and DDW will invest ₹900 crore each, resulting in a total investment of ₹1,800 crore","CSL will invest ₹900 crore while DDW will contribute ₹1,800 crore"], answer:2},
+
+{q:"The Joint Venture between Cochin Shipyard Limited (CSL) and Drydocks World (DDW) is intended to strengthen India's ship-repair ecosystem. Which of the following best describes the primary purpose of this JV?", options:["To manufacture naval aircraft and submarines exclusively for the Indian Armed Forces","To expand international ship repair, maintenance, conversion and offshore Engineering, Procurement and Construction capabilities","To establish India's first commercial shipbuilding university and maritime training centre","To develop a new civilian port exclusively for handling liquefied natural gas imports"], answer:1},
+
+{q:"Consider the following static information about Cochin Shipyard Limited (CSL): it was incorporated in 1972 and is headquartered in Kochi, Kerala. Which additional statement is correct?", options:["It is a Maharatna enterprise under the Ministry of Defence","It is a Miniratna enterprise under the Ministry of Commerce and Industry","It is a Navratna enterprise under the Ministry of Heavy Industries","It is a Miniratna public sector enterprise under the Ministry of Ports, Shipping & Waterways"], answer:3},
+
+{q:"The National Internet Exchange of India (NIXI) and Asia Pacific Network Information Centre (APNIC) signed an MoU during APNIC 62 in Mumbai on 8 September 2026. What was one of the important technological objectives of this cooperation?", options:["Creating a centralised international database of all Internet users in the Asia-Pacific region","Restricting all Internet routing operations in India to government-owned networks","Strengthening Internet routing security through wider adoption of Resource Public Key Infrastructure (RPKI)","Replacing Internet Protocol version 6 (IPv6) with a new domestic Internet protocol"], answer:2},
+
+{q:"The MoU between the National Internet Exchange of India (NIXI) and Asia Pacific Network Information Centre (APNIC) also provides for domestic hosting of an APNIC server instance. What is the expected benefit of this arrangement?", options:["Replacement of all existing domain-name systems with a centralised Indian system","Exclusive access to APNIC services for government and public-sector networks","Complete elimination of international Internet traffic and dependence on overseas networks","Improved routing security, reduced latency and more efficient in-country Internet operations"], answer:3},
+
+{q:"APNIC 62, during which the National Internet Exchange of India (NIXI) and Asia Pacific Network Information Centre (APNIC) signed their MoU, was held in Mumbai in September 2026. Which combination correctly represents the event dates and conference-session dates?", options:["APNIC 62: 1–8 September; conference sessions: 6–8 September","APNIC 62: 4–10 September; conference sessions: 8–10 September","APNIC 62: 10–14 September; conference sessions: 11–14 September","APNIC 62: 8–10 September; conference sessions: 4–10 September"], answer:1},
+
+{q:"Tata Steel has commissioned India's first Coke Oven Gas (COG) Injection Project at Blast Furnace 1 of its Meramandali plant in Odisha. What is the primary purpose of injecting purified COG into the blast furnace through tuyeres?", options:["To reduce fossil-fuel consumption and carbon emissions while improving energy efficiency and process flexibility","To replace iron ore with coke oven gas as the principal raw material in steel production","To generate electricity from blast-furnace gas exclusively for external commercial supply","To increase coal consumption in the blast furnace and maximise the production of coke"], answer:0},
+
+{q:"Coke Oven Gas (COG), used in Tata Steel’s first COG Injection Project, is a by-product of coke production. Which characteristic of COG is highlighted in the given information?", options:["It is a carbon-dioxide-rich gas containing no significant hydrogen content","It is a nitrogen-dominated gas produced exclusively during blast-furnace operation","It is hydrogen-rich and hydrocarbon-rich and contains more than 55% hydrogen","It is primarily oxygen-rich and contains less than 10% hydrogen"], answer:2},
+
+{q:"Tata Steel's Coke Oven Gas (COG) Injection Project at Meramandali enables a three-fuel operation in Blast Furnace 1. Which combination correctly identifies the technology and equipment support mentioned for the project?", options:["Technology support by Steel Authority of India Limited and equipment supplied by Larsen & Toubro","Technology support by Paul Wurth of SMS group and equipment supplied by Kobelco of Kobe Steel","Technology support by ISRO and equipment supplied by Bharat Heavy Electricals Limited","Technology support by Kobelco of Kobe Steel and equipment supplied by Paul Wurth of SMS group"], answer:1},
+
+{q:"Union Defence Minister Rajnath Singh undertook a three-day official visit to Sri Lanka from 8–10 September 2026 to strengthen bilateral defence relations and regional maritime security. Which statement correctly reflects a key development during the visit?", options:["Three MoUs were signed exclusively for joint production of fighter aircraft and helicopters","Four MoUs were signed covering only trade, investment and tourism cooperation","Two MoUs were signed exclusively concerning naval shipbuilding and submarine construction","Three MoUs were signed, including cooperation involving National Defence Colleges and National Cadet Corps"], answer:3},
+
+{q:"During Defence Minister Rajnath Singh’s visit to Sri Lanka, India agreed to upgrade a specific type of anti-aircraft gun for the Sri Lankan Air Force under an Indian government grant. Which weapon system was involved?", options:["4 × 35 mm Oerlikon anti-aircraft guns","8 × 40 mm Bofors anti-aircraft guns","6 × 40 mm L70 anti-aircraft guns","6 × 30 mm AK-630 naval guns"], answer:2},
+
+{q:"Rajnath Singh’s September 2026 visit to Sri Lanka was significant in terms of the history of ministerial-level defence engagement between the two countries. Which statement is correct?", options:["It was the first visit by an Indian Defence Minister to Sri Lanka after the signing of the 1987 Indo-Sri Lanka Accord","It was the first-ever visit by an Indian Defence Minister to Sri Lanka","It was the first visit by an Indian Defence Minister to Sri Lanka in nearly 40 years","It was the first visit by an Indian Defence Minister to Sri Lanka since 2010"], answer:2},
+
+{q:"The first International Space Summit 2026 was held in Paris with participation from representatives of nearly 90 countries. Which of the following correctly describes the summit and its major announcements?", options:["It was held on 9–10 September at the Grand Palais, Paris, and featured 51 announcements worth around EUR 20 billion","It was held on 10–11 September at the Paris Air Show venue and featured 90 announcements worth around EUR 20 billion","It was held on 4–5 September at the Louvre and featured 25 announcements worth around EUR 10 billion","It was held on 9–12 September at the European Space Agency headquarters and featured 51 announcements worth around EUR 15 billion"], answer:0},
+
+{q:"At the International Space Summit 2026, the Infrastructure for Resilience, Interconnectivity and Security by Satellite (IRIS²) programme accounted for a major portion of the announced commitments. What was the approximate value associated with IRIS²?", options:["EUR 10.5 billion","EUR 5 billion","EUR 20 billion","EUR 15.7 billion"], answer:3},
+
+{q:"India and France announced three agreements on space technology during the International Space Summit 2026. Which areas were specifically associated with these agreements?", options:["Deep-sea exploration, satellite navigation and nuclear power generation","Satellite launches, surveillance systems and microsatellite development","Human spaceflight, lunar mining and asteroid deflection","Rocket fuel production, space tourism and astronaut training"], answer:1},
+
+{q:"The International Space Summit 2026 also highlighted the planned deployment of the Space-Based Surveillance Phase-III (SBS-III) constellation. During which period is the deployment planned according to the given details?", options:["2030–2035","2028–2032","2027–2030","2026–2028"], answer:2},
+
+{q:"Exercise Samudra Laksamana 2026 is a bilateral naval exercise between India and Malaysia designed to enhance maritime cooperation, interoperability, professional knowledge sharing and operational synergy. Which of the following correctly identifies the participating forces and location of the 4th edition?", options:["Indian Navy and Royal Malaysian Air Force at Kota Kinabalu, Malaysia","Indian Navy and Malaysian Maritime Enforcement Agency at Penang, Malaysia","Indian Coast Guard and Royal Malaysian Navy (RMN) at Kuala Lumpur, Malaysia","Indian Navy and Royal Malaysian Navy (RMN) at Lumut, Malaysia"], answer:3},
+
+{q:"The 4th edition of Exercise Samudra Laksamana 2026 consists of distinct Harbour and Sea phases. Which activity is specifically associated with the Harbour Phase of the exercise?", options:["Cross-deck visits, Subject Matter Expert (SME) exchanges, discussions and sporting activities","Exclusive training in maritime search-and-rescue and humanitarian assistance operations","Long-range maritime patrols, anti-submarine warfare and missile exercises","Joint live-firing exercises, submarine operations and coordinated air strikes"], answer:0},
+
+{q:"During the Sea Phase of Exercise Samudra Laksamana 2026, the Indian Navy and Royal Malaysian Navy (RMN) focus on strengthening operational cooperation at sea. Which of the following best describes this phase?", options:["Classroom-based exchanges and cultural programmes","Defence-industry meetings and shipbuilding negotiations","Maritime cooperation and joint training","Cross-deck visits and professional sporting activities"], answer:2},
+
+{q:"Which pair of Royal Malaysian Navy (RMN) ships participated in the 4th edition of Exercise Samudra Laksamana 2026 held at Lumut, Malaysia?", options:["KD Jebat and KD Kelantan","KD Lekir and KD Gagah Sam","KD Kasturi and KD Lekiu","KD Selangor and KD Perantau"], answer:1},
+
+{q:"The 7th Global Fintech Fest (GFF 2026) was held in Mumbai from 8–11 September 2026 and focused on emerging technologies shaping inclusive finance. Which combination correctly identifies its venue and theme?", options:["India Expo Centre, Greater Noida — 'Quantum Banking: Digital Payments and Universal Financial Access'","Jio World Centre, Mumbai — 'Fintech for a Cashless and Cryptocurrency-Based Global Economy'","Bharat Mandapam, New Delhi — 'Digital India: AI, Blockchain and Secure Banking for All'","Jio World Centre, Mumbai — 'Potential to Impact: Agentic AI | Tokenisation | Quantum: Trusted, Connected, Global Systems for Inclusive Finance'"], answer:3},
+
+{q:"Global Fintech Fest 2026 (GFF 2026) was organised by three major Indian fintech and payments ecosystem bodies and was inaugurated by Prime Minister Narendra Modi. Which combination correctly identifies the organisers?", options:["Department of Financial Services (DFS), NPCI and Indian Banks’ Association (IBA)","Payments Council of India (PCI), RBI Innovation Hub (RBIH) and Financial Stability and Development Council (FSDC)","Payments Council of India (PCI), National Payments Corporation of India (NPCI) and Fintech Convergence Council (FCC)","Reserve Bank of India (RBI), Securities and Exchange Board of India (SEBI) and National Payments Corporation of India (NPCI)"], answer:2},
+
+{q:"At Global Fintech Fest 2026, the Reserve Bank of India (RBI) recognised the Unified Fintech Forum (UFF) as the second Self-Regulatory Organisation (SRO) for the fintech sector in India. What does this recognition relate to?", options:["Creation of a new central bank-owned digital payment network","Self-regulation and industry governance within India's fintech sector","Regulation of foreign exchange transactions exclusively through fintech companies","Supervision of all digital lending activities by commercial banks"], answer:1},
+
+{q:"As part of the announcements at Global Fintech Fest 2026, the Reserve Bank of India (RBI) expanded Bharat Connect Forex multicurrency foreign-exchange services. Which currencies were added alongside the existing United States Dollar (USD) service?", options:["Euro (EUR), Japanese Yen (JPY), Swiss Franc (CHF), Saudi Riyal (SAR) and UAE Dirham (AED)","Pound Sterling (GBP), Singapore Dollar (SGD), Australian Dollar (AUD), Canadian Dollar (CAD) and Japanese Yen (JPY)","Japanese Yen (JPY), Australian Dollar (AUD), Singapore Dollar (SGD), Euro (EUR) and Chinese Yuan (CNY)","Euro (EUR), Pound Sterling (GBP), Canadian Dollar (CAD), Swiss Franc (CHF) and UAE Dirham (AED)"], answer:3},
+
+{q:"Securities and Exchange Board of India (SEBI) announced Demat 2.0 at Global Fintech Fest 2026. What is the key objective of the pilot initiative mentioned in the given details?", options:["Tokenisation of corporate bonds using Distributed Ledger Technology (DLT)","Digitisation of government securities using artificial intelligence-based platforms","Conversion of equity shares into cryptocurrency-based securities using blockchain","Tokenisation of retail bank deposits using Central Bank Digital Currency (CBDC)"], answer:0},
+
+{q:"Eknath Shinde, Deputy Chief Minister of Maharashtra, received three international awards during his visit to London from 9–11 September 2026. Which award was specifically associated with the promotion of Marathi culture globally?", options:["Commonwealth Public Leadership Recognition","Global Pride of Maharashtra Award","Commonwealth Award for Cultural Diplomacy","Statesmanship Award for Transformative Leadership"], answer:1},
+
+{q:"The three international awards received by Eknath Shinde in London recognised different aspects of governance and public leadership. Which award was associated with governance, infrastructure and regional development?", options:["International Award for Urban Infrastructure Excellence","Commonwealth Public Leadership Recognition","Statesmanship Award for Transformative Leadership","Global Pride of Maharashtra Award"], answer:2},
+
+{q:"Ophiopogon japonicus, commonly known as Dwarf lilyturf or Mondo grass, was recorded in India for the first time in West Kameng district of Arunachal Pradesh. Which statement correctly describes this botanical finding?", options:["It belongs to the family Orchidaceae and was recorded in the Trans-Himalayan region","It belongs to the family Liliaceae and was recorded in the Eastern Ghats","It belongs to the family Poaceae and was recorded in the Western Ghats","It belongs to the family Asparagaceae and was recorded in the Eastern Himalaya"], answer:3},
+
+{q:"The first Indian record of Ophiopogon japonicus was documented through research involving the Wildlife Institute of India (WII) and the Uluberia Botanical Institute Herbarium, West Bengal. Which statement about the Wildlife Institute of India is correct?", options:["WII was established in 1986, is headquartered in Kolkata and functions under the Ministry of Agriculture and Farmers Welfare","WII was established in 1982, is headquartered in Dehradun and functions under the Ministry of Environment, Forest and Climate Change (MoEFCC)","WII was established in 1972, is headquartered in New Delhi and functions under the Ministry of Science and Technology","WII was established in 1992, is headquartered in Bhopal and functions under the Ministry of Earth Sciences"], answer:1},
+
+{q:"N. Purushothama Mallya, a Konkani language activist, educationist and writer, passed away on 11 September 2026 at the age of 97. Which of the following correctly describes his contribution and recognition?", options:["He translated Thirukkural into Konkani in 2015 and received the Padma Shri for Literature and Education in 2008","He worked primarily for Malayalam language promotion and received the Padma Shri in 2011 for Social Work","He worked for the inclusion of Konkani in the Eighth Schedule, received the Padma Vibhushan in 2015 and won the Sahitya Akademi Award in 2002","He worked for the inclusion of Konkani in the Eighth Schedule, received the Padma Shri in 2015 and won the Sahitya Akademi Translation Award in 2008"], answer:3},
+
+{q:"World Suicide Prevention Day (WSPD) is observed annually on 10 September. For the 2024–2026 period, which theme and call to action are associated with the observance?", options:["'Changing the Narrative on Suicide' — 'Start the Conversation'","'Building Resilience Together' — 'Talk, Support and Prevent'","'Creating Hope Through Action' — 'Start the Conversation'","'Changing the Narrative on Suicide' — 'Act Now for Mental Health'"], answer:0},
+
+{q:"World Suicide Prevention Day was established in 2003 by the International Association for Suicide Prevention (IASP) in collaboration with the World Health Organization (WHO). Where and when was the day first observed?", options:["19 December 2003, Stockholm, Sweden","10 September 2004, Geneva, Switzerland","10 September 2003, Stockholm, Sweden","12 September 2003, New York, United States"], answer:2},
+
+{q:"National Forest Martyrs Day is observed in India to honour forest personnel and others who lost their lives while protecting forests, trees and wildlife. Which historical event is associated with this observance?", options:["Bishnoi Movement of 1947 in Rajasthan","Silent Valley Movement of 1978 in Kerala","Chipko Movement of 1973 in Uttarakhand","Khejarli Massacre of 1730 in Rajasthan"], answer:3},
+
+{q:"The International Day for South-South Cooperation is observed on 12 September to promote cooperation among developing countries of the Global South. Which statement correctly explains its historical background?", options:["The original date was 12 September and was changed to 19 December in 2011 following the adoption of the BAPA","The date was changed in 2011 to 12 September to commemorate the 1978 adoption of the Buenos Aires Plan of Action (BAPA)","The day was established in 1978 and permanently fixed as 12 September by the United Nations General Assembly in 2004","The date was changed in 2003 to 12 September to commemorate the establishment of the United Nations Development Programme"], answer:1},
+
+{q:"The Chhattisgarh Cabinet approved the NIPUN Mission, formally described as CM Startup and New-Age Industry Preparedness through Up-skilling of New Generation Youth. Which combination correctly represents its financial outlay, duration and major infrastructure targets?", options:["₹500 crore for 7 years; Entrepreneurship Development Centres in 36 districts, 8 Centres of Excellence and 100 Emerging Technology Labs","₹1,000 crore for 5 years; Entrepreneurship Development Centres in 33 districts, 5 Centres of Excellence and 100 Emerging Technology Labs","₹500 crore for 5 years; Entrepreneurship Development Centres in 33 districts, 5 Centres of Excellence and 100 Emerging Technology Labs","₹500 crore for 3 years; Entrepreneurship Development Centres in 28 districts, 10 Centres of Excellence and 50 Emerging Technology Labs"], answer:2},
+
+{q:"The Chhattisgarh NIPUN Mission focuses on youth employment, skill development, entrepreneurship and innovation and includes a NIPUN Job Engine to connect trained youth with industrial workforce demand. Which emerging technologies are specifically included in its training and infrastructure focus?", options:["Blockchain, Semiconductor Fabrication, Nuclear Technology and Space Robotics","Internet of Things (IoT), Biotechnology, Nanotechnology and Green Hydrogen","Artificial Intelligence (AI), Quantum Computing, Robotics and 5G exclusively","Artificial Intelligence (AI), Internet of Things (IoT), Big Data and Blockchain"], answer:3},
+];
+
+
+
+// ===============================
+// VARIABLES
+// ===============================
+
+let userAnswers = new Array(questions.length).fill(null);
+
+let markedForReview = new Array(questions.length).fill(false);
+
+let submitted = false;
+
+// ===============================
+// LOAD QUIZ
+// ===============================
+
+function loadQuiz(){
+
+    const quizDiv = document.getElementById("quiz");
+
+    questions.forEach((question,index)=>{
+
+        const qDiv = document.createElement("div");
+
+        qDiv.classList.add("question");
+
+        qDiv.id = `question_${index}`;
+
+        qDiv.innerHTML = `
+        <h3>Q${index+1}. ${question.q}</h3>
+        `;
+
+        question.options.forEach((option,optIndex)=>{
+
+            const opt = document.createElement("div");
+
+            opt.classList.add("option");
+
+            opt.innerText = option;
+
+            opt.onclick = ()=>selectOption(index,optIndex,opt);
+
+            opt.id = `q${index}_opt${optIndex}`;
+
+            qDiv.appendChild(opt);
+
+        });
+
+        // MARK BUTTON
+
+        const markBtn = document.createElement("button");
+
+        markBtn.innerText = "Mark For Review";
+
+        markBtn.classList.add("mark-btn");
+
+        markBtn.onclick = ()=>toggleMark(index,markBtn);
+
+        qDiv.appendChild(markBtn);
+
+        // CLEAR BUTTON
+
+        const clearBtn = document.createElement("button");
+
+        clearBtn.innerText = "Clear";
+
+        clearBtn.classList.add("clear-btn");
+
+        clearBtn.onclick = ()=>clearAnswer(index);
+
+        qDiv.appendChild(clearBtn);
+
+        quizDiv.appendChild(qDiv);
+
+    });
+
+}
+
+// ===============================
+// SELECT OPTION
+// ===============================
+
+function selectOption(qIndex,optIndex,element){
+
+    if(submitted) return;
+
+    userAnswers[qIndex] = optIndex;
+
+    const options = document.querySelectorAll(`[id^="q${qIndex}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+    element.classList.add("selected");
+
+}
+
+// ===============================
+// MARK FOR REVIEW
+// ===============================
+
+function toggleMark(index,button){
+
+    markedForReview[index] = !markedForReview[index];
+
+    const questionBox = document.getElementById(`question_${index}`);
+
+    if(markedForReview[index]){
+
+        button.classList.add("marked");
+
+        button.innerText = "Marked For Review";
+
+        questionBox.classList.add("review-marked");
+
+    }else{
+
+        button.classList.remove("marked");
+
+        button.innerText = "Mark For Review";
+
+        questionBox.classList.remove("review-marked");
+
+    }
+
+}
+
+// ===============================
+// CLEAR ANSWER
+// ===============================
+
+function clearAnswer(index){
+
+    if(submitted) return;
+
+    userAnswers[index] = null;
+
+    const options = document.querySelectorAll(`[id^="q${index}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+}
+
+// ===============================
+// SUBMIT QUIZ
+// ===============================
+
+function submitQuiz(){
+
+    if(submitted) return;
+
+    submitted = true;
+
+    clearInterval(timer);
+
+    let score = 0;
+
+    let correctCount = 0;
+    let wrongCount = 0;
+    let unansweredCount = 0;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        if(userAns === null){
+
+            unansweredCount++;
+
+        }
+        else if(userAns === question.answer){
+
+            score += 1;
+            correctCount++;
+
+        }
+        else{
+
+            score -= 0.25;
+            wrongCount++;
+
+        }
+
+    });
+
+    let attempted = correctCount + wrongCount;
+
+    let accuracy = attempted > 0
+    ? ((correctCount/attempted)*100).toFixed(2)
+    : 0;
+
+    document.body.innerHTML = `
+
+    <div class="container">
+
+        <div class="result-box">
+
+            <h1>Quiz Submitted ✅</h1>
+
+            <h2>Total Score: ${score.toFixed(2)}</h2>
+
+            <h3>Correct Answers: ${correctCount}</h3>
+
+            <h3>Wrong Answers: ${wrongCount}</h3>
+
+            <h3>Unanswered Questions: ${unansweredCount}</h3>
+
+            <h3>Accuracy: ${accuracy}%</h3>
+
+            <button class="review-btn" onclick="reviewAnswers()">
+            Review Answers
+            </button>
+
+            <div id="reviewSection"></div>
+
+        </div>
+
+    </div>
+
+    `;
+
+}
+
+// ===============================
+// REVIEW ANSWERS
+// ===============================
+
+function reviewAnswers(){
+
+    const reviewSection = document.getElementById("reviewSection");
+
+    let html = `<h1 style="margin-top:40px;">Review Section</h1>`;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        let status = "";
+        let marks = "";
+
+        if(userAns === null){
+
+            status = `<span class="unanswered">Unanswered</span>`;
+            marks = `0 Marks`;
+
+        }
+        else if(userAns === question.answer){
+
+            status = `<span class="correct">Correct ✅</span>`;
+            marks = `+1 Mark`;
+
+        }
+        else{
+
+            status = `<span class="wrong">Wrong ❌</span>`;
+            marks = `-0.25 Mark`;
+
+        }
+
+        html += `
+
+        <div class="review-question">
+
+            <h3>Q${index+1}. ${question.q}</h3>
+
+            <p>${status}</p>
+
+            <p><b>Marks:</b> ${marks}</p>
+
+            <p>
+            <b>Your Answer:</b>
+            ${
+                userAns === null
+                ? "Not Attempted"
+                : question.options[userAns]
+            }
+            </p>
+
+            <div class="correct-answer">
+            <b>Correct Answer:</b>
+            ${question.options[question.answer]}
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+    reviewSection.innerHTML = html;
+
+}
+
+// ===============================
+// TIMER
+// ===============================
+
+let time = 1800;
+
+let timer;
+
+let isPaused = false;
+
+function startTimer(){
+
+    timer = setInterval(()=>{
+
+        if(!isPaused){
+
+            let minutes = Math.floor(time/60);
+
+            let seconds = time%60;
+
+            document.getElementById("timer").innerText =
+            `Time Left: ${minutes}:${seconds < 10 ? '0'+seconds : seconds}`;
+
+            time--;
+
+            if(time < 0){
+
+                clearInterval(timer);
+
+                alert("Time is up! Quiz auto-submitted.");
+
+                submitQuiz();
+
+            }
+
+        }
+
+    },1000);
+
+}
+
+// ===============================
+// PAUSE TIMER
+// ===============================
+
+function pauseTimer(){
+
+    if(submitted) return;
+
+    isPaused = true;
+
+    document.getElementById("pauseBtn").disabled = true;
+
+    document.getElementById("resumeBtn").disabled = false;
+
+    // Disable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.add("disabled-option");
+    });
+
+    // Disable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = true;
+        btn.classList.add("disabled-btn");
+    });
+
+}
+// ===============================
+// RESUME TIMER
+// ===============================
+
+function resumeTimer(){
+
+    if(submitted) return;
+
+    isPaused = false;
+
+    document.getElementById("pauseBtn").disabled = false;
+
+    document.getElementById("resumeBtn").disabled = true;
+
+    // Enable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.remove("disabled-option");
+    });
+
+    // Enable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = false;
+        btn.classList.remove("disabled-btn");
+    });
+
+}
+// ===============================
+
+loadQuiz();
+
+startTimer();
+
+</script>
+
+</body>
+</html>
